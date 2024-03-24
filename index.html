@@ -57,74 +57,84 @@
             font-size: 30px;
             top: 0;
             right: 0;
+            cursor: pointer;
         }
+        button{
+            display: table;
+            margin: auto;
+        }
+
 
 
     </style>
 </head>
 <body>
 
-    <form action="">
+    <form >
         <h2>Enquiry Now</h2>
         <label for="">Name</label>
         <input type="text" name="uname" required>
         <label for="">Email</label>
         <input type="email" name="email" required>
-        <label for="">Phone</label>
-        <input type="text" name="Phone" required>
+        <label for="">phone</label>
+        <input type="text" name="phone" required>
         <button>Save</button>
     </form>
+    <button id="call">clear all</button>
 
     <div class="main">
-        <div class="items">
-            <span>&times;</span>
-            <h5>Name</h5>
-            <div>Abcd</div>
-            <h5>Email</h5>
-            <div>abc@gmail.com</div>
-            <h5>Phone</h5>
-            <div>500000007</div>
-        </div>
-    </div>
-    
+       
+    </div>    
 </body>
-
 <script>
 
-    localStorage.setItem("name",user )
+    let form=document.querySelector("form");
+    let main=document.querySelector(".main");
+    let call =document.querySelector("#call");
+    
+    form.addEventListener("submit",(event)=>{
+      let name=event.target.uname.value;
+      let email=event.target.email.value;
+      let phone=event.target.phone.value;
+      let checkStatus=0;
 
 
-    let form = document.querySelector("form");
-    let main = document.querySelector(".main");
-    form.addEventListener("submit", (event)=> {
-      
-      let name = event.target.uname.value;
-      let email = event.target.email.value;
-      let Phone = event.target.Phone.value;
-      
+      let userData=JSON.parse(localStorage.getItem("userDetails")) ?? [];
+      for(let v of userData){
+        if(v.email==email || v.phone==phone){
+            checkStatus=1;
+            break;
+        }
+      }
 
-
-      let userData = JSON.parse(localStorage.getItem(userDetails)) ?? [];
-      
-      userData.push({
+      if(checkStatus==1){
+        alert("email or phone already exists")
+      }
+      else{
+        userData.push({
         'name':name,
         'email':email,
         'phone':phone
-      })
+        })
+        localStorage.setItem("userDetails",JSON.stringify(userData))
+        event.target.reset();
+      }
 
-      localStorage.setItem("userDetails", JSON.stringify(userData));
       displayData();
-
       event.preventDefault();
-    })
+    
+    })    
+    
+    
 
-    let displayData=() => {
-        let userData = JSON.parse(localStorage.getItem(userDetails)) ?? [];
+    let displayData=()=>{
+        let userData = JSON.parse(localStorage.getItem("userDetails")) ?? [];
         let finalData ='';
 
-        userData.forEach((element,i) => {
-            finalData +=`<div class="items">
-            <span>&times;</span>
+        userData.forEach( (element,i) => {
+
+            finalData+=`<div class="items">
+            <span onclick='removeData(${i})'>&times;</span>
 
             <h5>Name</h5>
             <div>${element.name}</div>
@@ -135,11 +145,26 @@
             <h5>Phone</h5>
             <div>${element.phone}</div>
         </div>`
+
         });
 
-        main.innerHTMl = finalData;
+        main.innerHTML= finalData;
 
     }
+    let removeData=(index)=>{
+        let userData=JSON.parse(localStorage.getItem("userDetails")) ?? [];
+        userData.splice(index,1);
+        localStorage.setItem("userDetails",JSON.stringify(userData))
+        displayData();
+        
+    }
+
+
+    call.addEventListener("click",()=>{
+        localStorage.clear("userDetails");
+        displayData();
+    })
+    
     displayData();
 
 </script>
